@@ -5,7 +5,7 @@ import unittest
 
 current_dir = os.path.dirname(__file__)
 # Add Eos module to python paths
-sys.path.append(os.path.realpath(os.path.join(current_dir, "..")))
+sys.path.append(os.path.realpath(os.path.join(current_dir, "..", "..")))
 
 if __name__ == "__main__":
     # Parse command line option (which is optional and positional)

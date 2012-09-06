@@ -25,7 +25,7 @@ import re
 import sys
 import string
 
-from utils.debug import debug
+from uncompyle3.utils.debug import debug
 
 
 def _namelist(instance):

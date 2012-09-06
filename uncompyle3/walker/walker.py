@@ -1,9 +1,9 @@
 import re
 import sys
 
-from parser.astnode import ASTNode
-from utils.spark import GenericASTTraversal
-from utils.debug import debug
+from uncompyle3.parser.astnode import ASTNode
+from uncompyle3.utils.spark import GenericASTTraversal
+from uncompyle3.utils.debug import debug
 
 
 TABLE_R = {

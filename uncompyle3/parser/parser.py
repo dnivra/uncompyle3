@@ -1,4 +1,4 @@
-from utils.spark import GenericASTBuilder
+from uncompyle3.utils.spark import GenericASTBuilder
 
 from .astnode import ASTNode
 
