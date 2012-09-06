@@ -10,6 +10,7 @@ class Parser(GenericASTBuilder):
 
     def p_grammar(self, args):
         """
+        stmts ::= stmts sstmt
         stmts ::= sstmt
         sstmt ::= stmt
         stmt ::= call_stmt
