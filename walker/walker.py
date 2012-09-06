@@ -3,6 +3,7 @@ import sys
 
 from parser.astnode import ASTNode
 from utils.spark import GenericASTTraversal
+from utils.debug import debug
 
 
 TABLE_R = {
@@ -54,26 +55,26 @@ class Walker(GenericASTTraversal):
         self.preorder(node)
 
     def default(self, node):
-        print("walker.default({})".format(""))
+        debug("walker.default({})".format(""))
         mapping = MAP.get(node, MAP_DIRECT)
         table = mapping[0]
         key = node
-        print("current key:", "\"{}\"".format(key.type).replace("\n", "\\n"))
+        debug("current key:", "\"{}\"".format(key.type).replace("\n", "\\n"))
         for i in mapping[1:]:
             key = key[i]
-            print("updated key:", "\"{}\"".format(key.type).replace("\n", "\\n"))
+            debug("updated key:", "\"{}\"".format(key.type).replace("\n", "\\n"))
 
         if key in table:
             self.engine(table[key], node)
             self.prune()
         else:
-            print("leaving walker.default(), no key")
+            debug("leaving walker.default(), no key")
 
     def engine(self, entry, startnode):
         #self.print_("-----")
         #self.print_(str(startnode.__dict__))
-        print("walker.engine()")
-        print("entry: \"{}\"".format(entry))
+        debug("walker.engine()")
+        debug("entry: \"{}\"".format(entry))
 
         fmt = entry[0]
         ## no longer used, since BUILD_TUPLE_n is pretty printed:
@@ -84,19 +85,19 @@ class Walker(GenericASTTraversal):
         m = escape.search(fmt)
         while m:
             i = m.end()
-            print("writing prefix: '{}'".format(m.group('prefix')))
+            debug("writing prefix: '{}'".format(m.group('prefix')))
             self.write(m.group('prefix'))
 
             typ = m.group('type') or '{'
             node = startnode
             try:
                 if m.group('child'):
-                    print("using child")
+                    debug("using child")
                     node = node[int(m.group('child'))]
             except:
                 print(node.__dict__)
                 raise
-            print("type:", typ)
+            debug("type:", typ)
             if   typ == '%':    self.write('%')
             elif typ == '+':    self.indentMore()
             elif typ == '-':    self.indentLess()
@@ -134,19 +135,19 @@ class Walker(GenericASTTraversal):
         self.write(fmt[i:])
 
     def write(self, *data):
-        print("writing: \"{}\"".format("".join(data)))
+        debug("writing: \"{}\"".format("".join(data)))
         self.result += "".join(data)
 
 
     def n_expr(self, node):
-        print("walker.n_expr()")
+        debug("walker.n_expr()")
         p = self.prec
         if node[0].type.startswith('binary_expr'):
             n = node[0][-1][0]
         else:
             n = node[0]
         self.prec = PRECEDENCE.get(n,-2)
-        print("picked node {} with precedence {}, old precedence {}".format(n.type, self.prec, p))
+        debug("picked node {} with precedence {}, old precedence {}".format(n.type, self.prec, p))
         if n == 'LOAD_CONST' and repr(n.pattr)[0] == '-':
             self.prec = 6
         if p < self.prec:

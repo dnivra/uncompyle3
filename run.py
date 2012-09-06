@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 if __name__ == "__main__":
 
     import argparse
@@ -7,6 +9,7 @@ if __name__ == "__main__":
     from parser.parser import Parser
     from version.magic import magics
     from walker.walker import Walker
+    from utils.debug import debug
 
     argparser = argparse.ArgumentParser(description="Bytecode decompiler for CPython 3.x")
     argparser.add_argument("file", help="path to file with bytecode")
@@ -26,10 +29,10 @@ if __name__ == "__main__":
     ### Scanner stage ###
     scanner = Scanner()
     tokens = scanner.tokenize(bytecode)
-    print("---Token output--- (offset linestart type attr pattr)")
+    debug("---Token output--- (offset linestart type attr pattr)")
     k = 1
     for i in tokens:
-        print("op {}:".format(k), i.offset, i.linestart, i.type, i.attr, i.pattr)
+        debug("op {}:".format(k), i.offset, i.linestart, i.type, i.attr, i.pattr)
         k+=1
 
     ### Parser stage ###
@@ -48,4 +51,4 @@ if __name__ == "__main__":
     ### Walker stage ###
     walker = Walker()
     walker.gen_source(ast)
-    print("result:\n---\n{}\n---".format(walker.result))
+    print(walker.result)
