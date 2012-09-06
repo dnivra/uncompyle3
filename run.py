@@ -1,16 +1,18 @@
 if __name__ == "__main__":
 
+    import argparse
+
     from scanner.scanner import Scanner
     from scanner.token import Token
     from parser.parser import Parser
     from version.magic import magics
     from walker.walker import Walker
 
+    argparser = argparse.ArgumentParser(description="Bytecode decompiler for CPython 3.x")
+    argparser.add_argument("file", help="path to file with bytecode")
+    args = argparser.parse_args()
 
-    #FILENAME = "const.cpython-32.pyc"
-    FILENAME = "res/__pycache__/globals.cpython-32.pyc"
-
-    file = open(FILENAME, "rb")
+    file = open(args.file, "rb")
     file_bytes = file.read()
     file.close()
 
