@@ -29,7 +29,7 @@ if __name__ == "__main__":
     ### Scanner stage ###
     scanner = Scanner()
     tokens = scanner.tokenize(bytecode)
-    debug("---Token output--- (offset linestart type attr pattr)")
+    debug("---Tokens debug output---\n#: offset linestart type attr pattr")
     k = 1
     for i in tokens:
         debug("op {}:".format(k), i.offset, i.linestart, i.type, i.attr, i.pattr)
@@ -37,6 +37,7 @@ if __name__ == "__main__":
 
     ### Parser stage ###
     # This is some kind of hack(?) taken from uncompyle 2 walker code
+    debug("\n\n---Parser stage debug---")
     if len(tokens) > 2:
         if tokens[-1] == Token(type_="RETURN_VALUE"):
             if tokens[-2] == Token(type_="LOAD_CONST"):
@@ -47,8 +48,10 @@ if __name__ == "__main__":
     parser = Parser()
     parser.addRule("call_function ::= expr CALL_FUNCTION", lambda self, args: None)
     ast = parser.parse(tokens)
+    debug(ast)
 
     ### Walker stage ###
+    debug("\n\n---Walker stage debug---")
     walker = Walker()
     walker.gen_source(ast)
     print(walker.result)

@@ -2,6 +2,7 @@ import re
 from subprocess import Popen, PIPE
 from unittest import TestCase
 
+# TODO: get rid of hardcoding throughout the blackbox tests
 
 class BlackBoxTestCase(TestCase):
     """
