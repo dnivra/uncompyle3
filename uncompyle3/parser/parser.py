@@ -23,6 +23,10 @@ class Parser(GenericASTBuilder):
         expr ::= call_function
         expr ::= LOAD_NAME
         expr ::= LOAD_CONST
+        expr ::= binary_expr
+        binary_expr ::= expr expr binary_op
+        binary_op ::= BINARY_ADD
+        binary_op ::= BINARY_SUBTRACT
         """
 
     def p_assign(self, args):
