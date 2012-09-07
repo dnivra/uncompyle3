@@ -15,13 +15,21 @@ class Parser(GenericASTBuilder):
         sstmt ::= stmt
         stmt ::= call_stmt
         call_stmt ::= expr POP_TOP
+        designator ::= STORE_NAME
         """
 
     def p_expr(self, args):
         """
         expr ::= call_function
         expr ::= LOAD_NAME
+        expr ::= LOAD_CONST
         """
+
+    def p_assign(self, args):
+        '''
+        stmt ::= assign
+        assign ::= expr designator
+        '''
 
 #    def p_custom(self, args):
 #        """
