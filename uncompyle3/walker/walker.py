@@ -8,12 +8,24 @@ TABLE_R = {
      'CALL_FUNCTION': ('%c(%P)', 0, (1, -1, ', ', 100))
 }
 TABLE_DIRECT = {
+    # Binary operators
+    'BINARY_POWER':     ('**',),
+    'BINARY_MULTIPLY':  ('*',),
+    'BINARY_FLOOR_DIVIDE':   ('//',),
+    'BINARY_TRUE_DIVIDE':   ('/',),
+    'BINARY_MODULO':   ('%',),
+    'BINARY_ADD':   ('+',),
+    'BINARY_SUBTRACT':   ('-',),
+    'BINARY_LSHIFT':   ('<<',),
+    'BINARY_RSHIFT':   ('>>',),
+    'BINARY_AND':   ('&',),
+    'BINARY_XOR':   ('^',),
+    'BINARY_OR':   ('|',),
+    # Miscellanea & temporary
     'call_stmt':    ('%|%p\n', (0, 200)),
     'LOAD_NAME':    ('%{pattr}',),
     'assign':       ('%|%c = %p\n', -1, (0, 200)),
     'STORE_NAME':   ('%{pattr}',),
-    'BINARY_ADD':   ('+',),
-    'BINARY_SUBTRACT':   ('-',),
 }
 
 
@@ -28,8 +40,26 @@ MAP = {
 
 PRECEDENCE = {
     'call_function':        2,
+
+    'BINARY_POWER':         4,
+
+    'BINARY_MULTIPLY':      8,
+    'BINARY_DIVIDE':        8,
+    'BINARY_TRUE_DIVIDE':   8,
+    'BINARY_FLOOR_DIVIDE':  8,
+    'BINARY_MODULO':        8,
+
     'BINARY_ADD':           10,
-    'BINARY_SUBTRACT':           10,
+    'BINARY_SUBTRACT':      10,
+
+    'BINARY_LSHIFT':        12,
+    'BINARY_RSHIFT':        12,
+
+    'BINARY_AND':           14,
+
+    'BINARY_XOR':           16,
+
+    'BINARY_OR':            18,
 }
 
 escape = re.compile(r"""
