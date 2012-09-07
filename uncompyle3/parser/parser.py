@@ -25,6 +25,8 @@ class Parser(GenericASTBuilder):
         expr ::= LOAD_CONST
         expr ::= binary_expr
         expr ::= binary_subscr
+        expr ::= unary_expr
+        expr ::= unary_not
 
         binary_expr ::= expr expr binary_op
         binary_op ::= BINARY_POWER
@@ -42,6 +44,13 @@ class Parser(GenericASTBuilder):
         binary_op ::= BINARY_OR
 
         binary_subscr ::= expr expr BINARY_SUBSCR
+
+        unary_expr ::= expr unary_op
+        unary_op ::= UNARY_POSITIVE
+        unary_op ::= UNARY_NEGATIVE
+        unary_op ::= UNARY_INVERT
+
+        unary_not ::= expr UNARY_NOT
         """
 
     def p_assign(self, args):

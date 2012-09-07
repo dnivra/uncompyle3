@@ -21,6 +21,12 @@ TABLE_DIRECT = {
     'BINARY_AND':   ('&',),
     'BINARY_XOR':   ('^',),
     'BINARY_OR':   ('|',),
+    # Unary operators
+    'unary_expr':   ( '%c%c', 1, 0),
+    'UNARY_POSITIVE':    ( '+',),
+    'UNARY_NEGATIVE':    ( '-',),
+    'UNARY_INVERT':    ( '~%c'),
+    'unary_not':    ( 'not %c', 0 ),
     # Miscellanea & temporary
     'binary_subscr':    ( '%c[%p]', 0, (1,100)),
     'call_stmt':    ('%|%p\n', (0, 200)),

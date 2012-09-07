@@ -3,67 +3,67 @@ from uncompyle3.tests.blackbox.blackboxtestcase import BlackBoxTestCase
 
 class TestOpBinary(BlackBoxTestCase):
 
-    def testPower(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_power.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_power.py"
+    def test_power(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/power.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/power.py"
         self.assertProgramOutput(infile, expected)
 
-    def testMultiply(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_multiply.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_multiply.py"
+    def test_multiply(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/multiply.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/multiply.py"
         self.assertProgramOutput(infile, expected)
 
-    def testFloorDivide(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_floordivide.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_floordivide.py"
+    def test_divide_floor(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/divide_floor.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/divide_floor.py"
         self.assertProgramOutput(infile, expected)
 
-    def testTrueDivide(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_truedivide.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_truedivide.py"
+    def test_divide_true(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/divide_true.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/divide_true.py"
         self.assertProgramOutput(infile, expected)
 
-    def testModulo(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_modulo.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_modulo.py"
+    def test_modulo(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/modulo.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/modulo.py"
         self.assertProgramOutput(infile, expected)
 
-    def testAdd(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_add.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_add.py"
+    def test_add(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/add.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/add.py"
         self.assertProgramOutput(infile, expected)
 
-    def testSubtract(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_subtract.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_subtract.py"
+    def test_subtract(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/subtract.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/subtract.py"
         self.assertProgramOutput(infile, expected)
 
-    def testSubscr(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_subscr.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_subscr.py"
+    def test_subscr(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/subscription.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/subscription.py"
         self.assertProgramOutput(infile, expected)
 
-    def testLshift(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_lshift.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_lshift.py"
+    def test_shift_left(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/shift_left.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/shift_left.py"
         self.assertProgramOutput(infile, expected)
 
-    def testRshift(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_rshift.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_rshift.py"
+    def test_shift_right(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/shift_right.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/shift_right.py"
         self.assertProgramOutput(infile, expected)
 
-    def testAnd(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_and.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_and.py"
+    def test_and(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/and.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/and.py"
         self.assertProgramOutput(infile, expected)
 
-    def testXor(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_xor.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_xor.py"
+    def test_xor(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/xor.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/xor.py"
         self.assertProgramOutput(infile, expected)
 
-    def testOr(self):
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_or.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/op_bin_or.py"
+    def test_or(self):
+        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/or.cpython-32.pyc"
+        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/or.py"
         self.assertProgramOutput(infile, expected)
