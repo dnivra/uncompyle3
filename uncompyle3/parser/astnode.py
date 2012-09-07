@@ -20,8 +20,12 @@ class ASTNode(UserList):
     def __hash__(self):
         return hash(self.type)
 
+    def __str__(self, indent=''):
+        return self.__repr__(indent)
+
     def __repr__(self, indent=''):
-        rv = str(self.type)
-        for k in self:
-            rv = rv + '\n' + str.replace(str(k), '\n', '\n  ')
-        return rv
+        current = '{}{}'.format(indent, self.type)
+        newindent = '  {}'.format(indent)
+        children = '\n'.join(child.__str__(indent=newindent) for child in self)
+        total = '{}\n{}'.format(current, children)
+        return total
