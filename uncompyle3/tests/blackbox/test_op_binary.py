@@ -38,7 +38,7 @@ class TestOpBinary(BlackBoxTestCase):
         expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/subtract.py"
         self.assertProgramOutput(infile, expected)
 
-    def test_subscr(self):
+    def test_subscription(self):
         infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/subscription.cpython-32.pyc"
         expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_binary/subscription.py"
         self.assertProgramOutput(infile, expected)

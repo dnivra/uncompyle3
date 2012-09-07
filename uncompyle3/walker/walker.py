@@ -8,7 +8,7 @@ TABLE_R = {
      'CALL_FUNCTION': ('%c(%P)', 0, (1, -1, ', ', 100))
 }
 TABLE_DIRECT = {
-    # Binary operators
+    # Binary operations
     'BINARY_POWER':     ('**',),
     'BINARY_MULTIPLY':  ('*',),
     'BINARY_FLOOR_DIVIDE':   ('//',),
@@ -21,12 +21,26 @@ TABLE_DIRECT = {
     'BINARY_AND':   ('&',),
     'BINARY_XOR':   ('^',),
     'BINARY_OR':   ('|',),
-    # Unary operators
+    # Unary operations
     'unary_expr':   ( '%c%c', 1, 0),
     'UNARY_POSITIVE':    ( '+',),
     'UNARY_NEGATIVE':    ( '-',),
     'UNARY_INVERT':    ( '~%c'),
     'unary_not':    ( 'not %c', 0 ),
+    # Inplace operations
+    'augassign':    ( '%|%c %c %c\n', 0, 2, 1),
+    'INPLACE_POWER':    ( '**=',),
+    'INPLACE_MULTIPLY':    ( '*=' ,),
+    'INPLACE_FLOOR_DIVIDE':    ( '//=' ,),
+    'INPLACE_TRUE_DIVIDE':    ( '/=' ,),
+    'INPLACE_MODULO':    ( '%%=',),
+    'INPLACE_ADD':    ( '+=' ,),
+    'INPLACE_SUBTRACT':    ( '-=' ,),
+    'INPLACE_LSHIFT':    ( '<<=',),
+    'INPLACE_RSHIFT':    ( '>>=',),
+    'INPLACE_AND':    ( '&=' ,),
+    'INPLACE_OR':    ( '|=' ,),
+    'INPLACE_XOR':    ( '^=' ,),
     # Miscellanea & temporary
     'binary_subscr':    ( '%c[%p]', 0, (1,100)),
     'call_stmt':    ('%|%p\n', (0, 200)),

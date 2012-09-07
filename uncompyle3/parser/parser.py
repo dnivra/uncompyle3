@@ -54,10 +54,29 @@ class Parser(GenericASTBuilder):
         """
 
     def p_assign(self, args):
-        '''
+        """
         stmt ::= assign
         assign ::= expr designator
-        '''
+        """
+
+    def p_augmented_assign(self, args):
+        """
+        stmt ::= augassign
+        augassign ::= expr expr inplace_op designator
+
+        inplace_op ::= INPLACE_POWER
+        inplace_op ::= INPLACE_MULTIPLY
+        inplace_op ::= INPLACE_FLOOR_DIVIDE
+        inplace_op ::= INPLACE_TRUE_DIVIDE
+        inplace_op ::= INPLACE_MODULO
+        inplace_op ::= INPLACE_ADD
+        inplace_op ::= INPLACE_SUBTRACT
+        inplace_op ::= INPLACE_LSHIFT
+        inplace_op ::= INPLACE_RSHIFT
+        inplace_op ::= INPLACE_AND
+        inplace_op ::= INPLACE_XOR
+        inplace_op ::= INPLACE_OR
+        """
 
 #    def p_custom(self, args):
 #        """
