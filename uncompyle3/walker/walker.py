@@ -22,6 +22,7 @@ TABLE_DIRECT = {
     'BINARY_XOR':   ('^',),
     'BINARY_OR':   ('|',),
     # Miscellanea & temporary
+    'binary_subscr':    ( '%c[%p]', 0, (1,100)),
     'call_stmt':    ('%|%p\n', (0, 200)),
     'LOAD_NAME':    ('%{pattr}',),
     'assign':       ('%|%c = %p\n', -1, (0, 200)),

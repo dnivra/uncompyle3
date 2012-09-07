@@ -24,6 +24,8 @@ class Parser(GenericASTBuilder):
         expr ::= LOAD_NAME
         expr ::= LOAD_CONST
         expr ::= binary_expr
+        expr ::= binary_subscr
+
         binary_expr ::= expr expr binary_op
         binary_op ::= BINARY_POWER
         binary_op ::= BINARY_MULTIPLY
@@ -33,12 +35,13 @@ class Parser(GenericASTBuilder):
         binary_op ::= BINARY_MODULO
         binary_op ::= BINARY_ADD
         binary_op ::= BINARY_SUBTRACT
-        binary_op ::= BINARY_SUBSCR
         binary_op ::= BINARY_LSHIFT
         binary_op ::= BINARY_RSHIFT
         binary_op ::= BINARY_AND
         binary_op ::= BINARY_XOR
         binary_op ::= BINARY_OR
+
+        binary_subscr ::= expr expr BINARY_SUBSCR
         """
 
     def p_assign(self, args):
