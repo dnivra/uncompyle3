@@ -78,6 +78,9 @@ class Parser(GenericASTBuilder):
         inplace_op ::= INPLACE_OR
         """
 
+    def add_custom_rules(self, customize):
+        pass
+
 #    def p_custom(self, args):
 #        """
 #        call_function ::= expr CALL_FUNCTION
