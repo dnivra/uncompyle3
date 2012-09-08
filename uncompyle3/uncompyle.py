@@ -42,5 +42,4 @@ class Uncompyle:
         ### Walker stage ###
         debug('\n\n---Walker stage debug---')
         walker = Walker()
-        walker.gen_source(ast)
-        return walker.result
+        return walker.gen_source(ast)
