@@ -1,6 +1,7 @@
 from uncompyle3.utils.spark import GenericASTTraversal
 from uncompyle3.utils.debug import debug
 from .arguments import NodeInfo, FormatChild, FormatChildPrec, FormatAttr, FormatRangePrec, IndentCurrent
+from .exception import UnknownParameterError
 
 
 TABLE_DIRECT = {
@@ -136,8 +137,7 @@ class Walker(GenericASTTraversal):
                     self.datastack.append(data)
                 #self.prec = p
             else:
-                # TODO: throw error, we should have no unsupported args
-                debug("FAILED ARG:", arg)
+                raise UnknownParameterError(arg)
         arglen = len(info.arguments)
         if arglen == 0:
             self.datastack.append(info.format)
