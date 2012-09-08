@@ -3,6 +3,10 @@ from uncompyle3.utils.spark import GenericASTBuilder
 from .astnode import ASTNode
 
 
+# Empty function, used as argument when adding custom rules
+nop_func = lambda self, args: None
+
+
 class Parser(GenericASTBuilder):
 
     def __init__(self):
@@ -78,8 +82,19 @@ class Parser(GenericASTBuilder):
         inplace_op ::= INPLACE_OR
         """
 
-    def add_custom_rules(self, customize):
-        pass
+    def add_custom_rules(self, tokens):
+        new_rules = set()
+        for token in tokens:
+            if token.type != 'CALL_FUNCTION':
+                continue
+            args_pos = token.attr
+            pos_args_line = '' if args_pos == 0 else ' {}'.format(' '.join('expr' for _ in range(args_pos)))
+            rule = 'call_function ::= expr{} CALL_FUNCTION'.format(pos_args_line)
+            new_rules.add(rule)
+        for rule in new_rules:
+            self.addRule(rule, nop_func)
+
+
 
 #    def p_custom(self, args):
 #        """

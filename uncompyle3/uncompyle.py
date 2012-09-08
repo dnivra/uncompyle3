@@ -35,8 +35,7 @@ class Uncompyle:
             del tokens[-2:]
 
         parser = Parser()
-        parser.addRule('call_function ::= expr CALL_FUNCTION', lambda self, args: None)
-        parser.addRule('call_function ::= expr expr expr CALL_FUNCTION', lambda self, args: None)
+        parser.add_custom_rules(tokens)
         ast = parser.parse(tokens)
         debug(ast)
 
