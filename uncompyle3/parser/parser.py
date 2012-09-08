@@ -20,6 +20,7 @@ class Parser(GenericASTBuilder):
         stmt ::= call_stmt
         call_stmt ::= expr POP_TOP
         designator ::= STORE_NAME
+        kwarg ::= LOAD_CONST expr
         """
 
     def p_expr(self, args):
@@ -87,9 +88,13 @@ class Parser(GenericASTBuilder):
         for token in tokens:
             if token.type != 'CALL_FUNCTION':
                 continue
-            args_pos = token.attr
+            # Low byte indicates number of positional paramters,
+            # high byte number of positional parameters
+            args_pos = token.attr & 0xff
+            args_kw = (token.attr >> 8) & 0xff
             pos_args_line = '' if args_pos == 0 else ' {}'.format(' '.join('expr' for _ in range(args_pos)))
-            rule = 'call_function ::= expr{} CALL_FUNCTION'.format(pos_args_line)
+            kw_args_line = '' if args_kw == 0 else ' {}'.format(' '.join('kwarg' for _ in range(args_kw)))
+            rule = 'call_function ::= expr{}{} CALL_FUNCTION'.format(pos_args_line, kw_args_line)
             new_rules.add(rule)
         for rule in new_rules:
             self.addRule(rule, nop_func)

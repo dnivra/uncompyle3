@@ -47,6 +47,7 @@ TABLE_DIRECT = {
     'LOAD_NAME':    ('%{pattr}',),
     'assign':       ('%|%c = %p\n', -1, (0, 200)),
     'STORE_NAME':   ('%{pattr}',),
+    'kwarg':        ( '%[0]{pattr[noquotes]}=%c', 1),
 }
 
 
@@ -87,7 +88,7 @@ escape = re.compile(r"""
             (?P<prefix> [^%]* )
             % ( \[ (?P<child> -? \d+ ) \] )?
                 ((?P<type> [^{] ) |
-                 ( [{] (?P<expr> [^}]* ) [}] ))
+                 ( [{] (?P<expr> [^}\[]* )  (?P<noquotes> \[noquotes\] )? [}] ))
         """, re.VERBOSE)
 
 
@@ -182,17 +183,21 @@ class Walker(GenericASTTraversal):
                 d = node.__dict__
                 expr = m.group('expr')
                 try:
-                    self.write(eval(expr, d, d))
+                    # Strip quotes if we're asked to
+                    if m.group('noquotes'):
+                        data = re.sub('^\'(?P<data>.*)\'$', '\g<data>', eval(expr, d, d))
+                    else:
+                        data = eval(expr, d, d)
                 except:
                     print(node)
                     raise
+                self.write(data)
             m = escape.search(fmt, i)
         self.write(fmt[i:])
 
     def write(self, *data):
         debug('writing: \"{}\"'.format(''.join(data)))
         self.result += ''.join(data)
-
 
     def n_expr(self, node):
         debug('walker.n_expr()')
