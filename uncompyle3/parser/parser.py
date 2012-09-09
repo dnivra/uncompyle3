@@ -64,7 +64,9 @@ class Parser(GenericASTBuilder):
         cmp ::= compare
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr
+        or   ::= expr POP_JUMP_IF_TRUE expr
         and  ::= expr JUMP_IF_FALSE_OR_POP expr
+        and  ::= expr POP_JUMP_IF_FALSE expr
         """
 
     def p_assign(self, args):
