@@ -34,6 +34,8 @@ class Parser(GenericASTBuilder):
         expr ::= unary_expr
         expr ::= unary_not
         expr ::= cmp
+        expr ::= and
+        expr ::= or
 
         binary_expr ::= expr expr binary_op
         binary_op ::= BINARY_POWER
@@ -60,6 +62,9 @@ class Parser(GenericASTBuilder):
         unary_not ::= expr UNARY_NOT
 
         cmp ::= compare
+
+        or   ::= expr JUMP_IF_TRUE_OR_POP expr
+        and  ::= expr JUMP_IF_FALSE_OR_POP expr
         """
 
     def p_assign(self, args):

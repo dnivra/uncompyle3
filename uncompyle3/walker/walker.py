@@ -41,6 +41,9 @@ TABLE_DIRECT = {
     'INPLACE_AND':          NodeInfo('&=',),
     'INPLACE_OR':           NodeInfo('|=',),
     'INPLACE_XOR':          NodeInfo('^=',),
+    # Logic operations
+    'and':                  NodeInfo('{} and {}', (FormatChild(0), FormatChild(2))),
+    'or':                   NodeInfo('{} or {}', (FormatChild(0), FormatChild(2))),
     # Miscellanea & temporary
     'call_function':        NodeInfo('{}({})', (FormatChild(0), FormatRange(1, -1, ', ', 100))),
     'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0), FormatChild(1, 100))),
@@ -77,6 +80,12 @@ PRECEDENCE = {
     'BINARY_OR':            18,
 
     'cmp':                  20,
+
+    'unary_not':            22,
+
+    'and':                  24,
+
+    'or':                   26,
 }
 
 
