@@ -1,12 +1,12 @@
 from uncompyle3.utils.spark import GenericASTTraversal
 from uncompyle3.utils.debug import debug
-from .arguments import NodeInfo, FormatChild, FormatChildPrec, FormatAttr, FormatRangePrec, IndentCurrent
+from .containers import NodeInfo, FormatChild, FormatRange, FormatAttr, IndentCurrent
 from .exception import UnknownParameterError
 
 
 TABLE_DIRECT = {
     # Binary operations
-    'binary_expr':          NodeInfo('{} {} {}', (FormatChild(0), FormatChild(-1), FormatChild(1))),
+    'binary_expr':          NodeInfo('{} {} {}', (FormatChild(0, None), FormatChild(-1, None), FormatChild(1, None))),
     'BINARY_POWER':         NodeInfo('**', ()),
     'BINARY_MULTIPLY':      NodeInfo('*', ()),
     'BINARY_FLOOR_DIVIDE':  NodeInfo('//', ()),
@@ -20,13 +20,13 @@ TABLE_DIRECT = {
     'BINARY_XOR':           NodeInfo('^', ()),
     'BINARY_OR':            NodeInfo('|', ()),
     # Unary operations
-    'unary_expr':           NodeInfo('{}{}', (FormatChild(1), FormatChild(0))),
+    'unary_expr':           NodeInfo('{}{}', (FormatChild(1, None), FormatChild(0, None))),
     'UNARY_POSITIVE':       NodeInfo('+', ()),
     'UNARY_NEGATIVE':       NodeInfo('-', ()),
     'UNARY_INVERT':         NodeInfo('~', ()),
-    'unary_not':            NodeInfo('not {}', (FormatChild(0),)),
+    'unary_not':            NodeInfo('not {}', (FormatChild(0, None),)),
     # Inplace operations
-    'augassign':            NodeInfo('{}{} {} {}\n', (IndentCurrent(), FormatChild(0), FormatChild(2), FormatChild(1))),
+    'augassign':            NodeInfo('{}{} {} {}\n', (IndentCurrent(), FormatChild(0, None), FormatChild(2, None), FormatChild(1, None))),
     'INPLACE_POWER':        NodeInfo('**=', ()),
     'INPLACE_MULTIPLY':     NodeInfo('*=', ()),
     'INPLACE_FLOOR_DIVIDE': NodeInfo('//=', ()),
@@ -40,14 +40,14 @@ TABLE_DIRECT = {
     'INPLACE_OR':           NodeInfo('|=', ()),
     'INPLACE_XOR':          NodeInfo('^=', ()),
     # Miscellanea & temporary
-    'call_function':        NodeInfo('{}({})', (FormatChild(0), FormatRangePrec(1, -1, ', ', 100))),
-    'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0), FormatChildPrec(1, 100))),
-    'call_stmt':            NodeInfo('{}{}\n', (IndentCurrent(), FormatChildPrec(0, 200))),
+    'call_function':        NodeInfo('{}({})', (FormatChild(0, None), FormatRange(1, -1, ', ', 100))),
+    'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0, None), FormatChild(1, 100))),
+    'call_stmt':            NodeInfo('{}{}\n', (IndentCurrent(), FormatChild(0, 200))),
     'LOAD_NAME':            NodeInfo('{}', (FormatAttr('pattr', None),)),
     'LOAD_CONST':           NodeInfo('{}', (FormatAttr('pattr', None),)),
-    'assign':               NodeInfo('{}{} = {}\n', (IndentCurrent(), FormatChild(-1), FormatChildPrec(0, 200))),
+    'assign':               NodeInfo('{}{} = {}\n', (IndentCurrent(), FormatChild(-1, None), FormatChild(0, 200))),
     'STORE_NAME':           NodeInfo('{}', (FormatAttr('pattr', None),)),
-    'kwarg':                NodeInfo('{}={}', (FormatAttr('pattr', 0), FormatChild(1))),
+    'kwarg':                NodeInfo('{}={}', (FormatAttr('pattr', 0), FormatChild(1, None))),
 }
 
 PRECEDENCE = {
@@ -111,9 +111,6 @@ class Walker(GenericASTTraversal):
                 self.datastack.append(self.indent)
             elif isinstance(arg, FormatChild):
                 debug("picked FormatChild")
-                self.preorder(node[arg.child])
-            elif isinstance(arg, FormatChildPrec):
-                debug("picked FormatChildPrec")
                 #p = self.prec
                 #self.prec = arg.precedence
                 self.preorder(node[arg.child])
@@ -122,7 +119,7 @@ class Walker(GenericASTTraversal):
                 debug("picked FormatAttr")
                 newnode = node[arg.child] if arg.child is not None else node
                 self.datastack.append(getattr(newnode, arg.attrname))
-            elif isinstance(arg, FormatRangePrec):
+            elif isinstance(arg, FormatRange):
                 debug("picked FormatRangePrec")
                 #p = self.prec
                 subnodes = node[arg.first:arg.last]
