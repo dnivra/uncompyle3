@@ -35,3 +35,9 @@ class FormatAttr(namedtuple('FormatAttr', ('attrname', 'child', 'reformat'))):
 
 # Reformat string, pass both fields as 1st and 2nd args to re.sub()
 Reformat = namedtuple('Reformat', ('match', 'sub'))
+
+
+# Container for walker stack
+class StackData(namedtuple('StackData', ('data', 'precedence'))):
+    def __new__(cls, data, precedence=None):
+        return tuple.__new__(cls, (data, precedence))

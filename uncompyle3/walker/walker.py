@@ -2,13 +2,13 @@ import re
 
 from uncompyle3.utils.spark import GenericASTTraversal
 from uncompyle3.utils.debug import debug
-from .containers import NodeInfo, FormatChild, FormatRange, FormatAttr, IndentCurrent, Reformat
+from .containers import NodeInfo, FormatChild, FormatRange, FormatAttr, IndentCurrent, Reformat, StackData
 from .exception import UnknownParameterError
 
 
 TABLE_DIRECT = {
     # Binary operations
-    'binary_expr':          NodeInfo('{} {} {}', (FormatChild(0), FormatChild(-1), FormatChild(1))),
+    #'binary_expr':          NodeInfo('{} {} {}', (FormatChild(0), FormatChild(-1), FormatChild(1))),
     'BINARY_POWER':         NodeInfo('**',),
     'BINARY_MULTIPLY':      NodeInfo('*',),
     'BINARY_FLOOR_DIVIDE':  NodeInfo('//',),
@@ -81,18 +81,12 @@ class Walker(GenericASTTraversal):
 
     def __init__(self):
         self.indent = ''
-        #self.prec = 100
         self.datastack = []
         GenericASTTraversal.__init__(self, ast=None)
 
     def gen_source(self, ast):
-        self.traverse(ast)
-        return ''.join(self.datastack)
-
-    def traverse(self, node, indent=None):
-        if indent is None:
-            indent = ''
-        self.preorder(node)
+        self.preorder(ast)
+        return ''.join(item.data for item in self.datastack)
 
     def default(self, node):
         debug('walker.default({})'.format(''))
@@ -110,48 +104,80 @@ class Walker(GenericASTTraversal):
         for arg in info.arguments:
             if isinstance(arg, IndentCurrent):
                 debug("picked IndentCurrent")
-                self.datastack.append(self.indent)
+                word = StackData(self.indent)
+                self.datastack.append(word)
             elif isinstance(arg, FormatChild):
                 debug("picked FormatChild")
-                #p = self.prec
-                #self.prec = arg.precedence
                 self.preorder(node[arg.child])
                 if arg.reformat is not None:
-                    self.datastack[-1] = self.__reformat(arg.reformat, self.datastack[-1])
-                #self.prec = p
+                    word_old = self.datastack[-1]
+                    word_new = StackData(self.__reformat(arg.reformat, word_old.data), word_old.precedence)
+                    self.datastack[-1] = word_new
             elif isinstance(arg, FormatRange):
                 debug("picked FormatRangePrec")
-                #p = self.prec
                 subnodes = node[arg.first:arg.last]
                 subnodenum = len(subnodes)
                 for subnode in subnodes:
                     self.preorder(subnode)
                 if subnodenum == 0:
-                    self.datastack.append('')
+                    word = StackData('')
                 else:
-                    data = arg.separator.join(self.datastack[-subnodenum:])
+                    data = arg.separator.join(word.data for word in self.datastack[-subnodenum:])
                     del self.datastack[-subnodenum:]
                     if arg.reformat is not None:
                         data = self.__reformat(arg.reformat, data)
-                    self.datastack.append(data)
-                #self.prec = p
+                    word = StackData(data)
+                self.datastack.append(word)
             elif isinstance(arg, FormatAttr):
                 debug("picked FormatAttr")
                 newnode = node[arg.child] if arg.child is not None else node
                 data = getattr(newnode, arg.attrname)
                 if arg.reformat is not None:
                     data = self.__reformat(arg.reformat, data)
-                self.datastack.append(data)
+                word = StackData(data)
+                self.datastack.append(word)
             else:
                 raise UnknownParameterError(arg)
         arglen = len(info.arguments)
         if arglen == 0:
-            self.datastack.append(info.format)
+            word = StackData(info.format)
         else:
-            data = info.format.format(*self.datastack[-arglen:])
+            data = info.format.format(*(word.data for word in self.datastack[-arglen:]))
             del self.datastack[-arglen:]
-            self.datastack.append(data)
-            debug(self.datastack)
+            word = StackData(data)
+        self.datastack.append(word)
+        debug("Engine:", self.datastack)
 
     def __reformat(self, reformat, data):
         return re.sub(reformat.match, reformat.sub, data)
+
+    def n_binary_expr(self, node):
+        # Run engine on child nodes to fill the stack
+        # with ready-to-use data
+        self.preorder(node[0])
+        self.preorder(node[-1])
+        self.preorder(node[1])
+        # Get precedences and data for all involved parts
+        p_left = self.datastack[-3].precedence
+        p_right = self.datastack[-1].precedence
+        p_oper = PRECEDENCE.get(node[-1][0].type)
+        data_left = self.datastack[-3].data
+        data_right = self.datastack[-1].data
+        data_oper = self.datastack[-2].data
+        # Start working on data. We enclose left part in parenthesis only when
+        # its operation has bigger precedence, in case with equal precedence it's
+        # implied that left part is executed first.
+        if p_oper is not None and p_left is not None and p_left > p_oper:
+            data_left = '({})'.format(data_left)
+        # With right part we add parenthesis even in case of equal precedences -
+        # despite it has the same arithemtical meaning with or without them,
+        # python calculates parenthized part first, and we must reflect it
+        # in the source
+        if p_oper is not None and p_right is not None and p_right >= p_oper:
+            data_right = '({})'.format(data_right)
+        # Form word and modify the stack
+        data = '{} {} {}'.format(data_left, data_oper, data_right)
+        word_new = StackData(data, p_oper)
+        del self.datastack[-3:]
+        self.datastack.append(word_new)
+        self.prune()
