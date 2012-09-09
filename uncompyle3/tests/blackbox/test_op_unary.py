@@ -1,5 +1,3 @@
-from unittest import skip
-
 from uncompyle3.tests.blackbox.blackboxtestcase import BlackBoxTestCase
 
 
@@ -25,7 +23,6 @@ class TestOpUnary(BlackBoxTestCase):
         expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_unary/invert.py"
         self.assertProgramOutput(infile, expected)
 
-    @skip("calls function instead of using GET_ITER for some reason")
     def test_iter(self):
         infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_unary/iter.cpython-32.pyc"
         expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/operations_unary/iter.py"
