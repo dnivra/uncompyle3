@@ -1,12 +1,14 @@
+import re
+
 from uncompyle3.utils.spark import GenericASTTraversal
 from uncompyle3.utils.debug import debug
-from .containers import NodeInfo, FormatChild, FormatRange, FormatAttr, IndentCurrent
+from .containers import NodeInfo, FormatChild, FormatRange, FormatAttr, IndentCurrent, Reformat
 from .exception import UnknownParameterError
 
 
 TABLE_DIRECT = {
     # Binary operations
-    'binary_expr':          NodeInfo('{} {} {}', (FormatChild(0, None), FormatChild(-1, None), FormatChild(1, None))),
+    'binary_expr':          NodeInfo('{} {} {}', (FormatChild(0, None, None), FormatChild(-1, None, None), FormatChild(1, None, None))),
     'BINARY_POWER':         NodeInfo('**', ()),
     'BINARY_MULTIPLY':      NodeInfo('*', ()),
     'BINARY_FLOOR_DIVIDE':  NodeInfo('//', ()),
@@ -20,13 +22,13 @@ TABLE_DIRECT = {
     'BINARY_XOR':           NodeInfo('^', ()),
     'BINARY_OR':            NodeInfo('|', ()),
     # Unary operations
-    'unary_expr':           NodeInfo('{}{}', (FormatChild(1, None), FormatChild(0, None))),
+    'unary_expr':           NodeInfo('{}{}', (FormatChild(1, None, None), FormatChild(0, None, None))),
     'UNARY_POSITIVE':       NodeInfo('+', ()),
     'UNARY_NEGATIVE':       NodeInfo('-', ()),
     'UNARY_INVERT':         NodeInfo('~', ()),
-    'unary_not':            NodeInfo('not {}', (FormatChild(0, None),)),
+    'unary_not':            NodeInfo('not {}', (FormatChild(0, None, None),)),
     # Inplace operations
-    'augassign':            NodeInfo('{}{} {} {}\n', (IndentCurrent(), FormatChild(0, None), FormatChild(2, None), FormatChild(1, None))),
+    'augassign':            NodeInfo('{}{} {} {}\n', (IndentCurrent(), FormatChild(0, None, None), FormatChild(2, None, None), FormatChild(1, None, None))),
     'INPLACE_POWER':        NodeInfo('**=', ()),
     'INPLACE_MULTIPLY':     NodeInfo('*=', ()),
     'INPLACE_FLOOR_DIVIDE': NodeInfo('//=', ()),
@@ -40,14 +42,14 @@ TABLE_DIRECT = {
     'INPLACE_OR':           NodeInfo('|=', ()),
     'INPLACE_XOR':          NodeInfo('^=', ()),
     # Miscellanea & temporary
-    'call_function':        NodeInfo('{}({})', (FormatChild(0, None), FormatRange(1, -1, ', ', 100))),
-    'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0, None), FormatChild(1, 100))),
-    'call_stmt':            NodeInfo('{}{}\n', (IndentCurrent(), FormatChild(0, 200))),
-    'LOAD_NAME':            NodeInfo('{}', (FormatAttr('pattr', None),)),
-    'LOAD_CONST':           NodeInfo('{}', (FormatAttr('pattr', None),)),
-    'assign':               NodeInfo('{}{} = {}\n', (IndentCurrent(), FormatChild(-1, None), FormatChild(0, 200))),
-    'STORE_NAME':           NodeInfo('{}', (FormatAttr('pattr', None),)),
-    'kwarg':                NodeInfo('{}={}', (FormatAttr('pattr', 0), FormatChild(1, None))),
+    'call_function':        NodeInfo('{}({})', (FormatChild(0, None, None), FormatRange(1, -1, ', ', 100, None))),
+    'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0, None, None), FormatChild(1, 100, None))),
+    'call_stmt':            NodeInfo('{}{}\n', (IndentCurrent(), FormatChild(0, 200, None))),
+    'LOAD_NAME':            NodeInfo('{}', (FormatAttr('pattr', None, None),)),
+    'LOAD_CONST':           NodeInfo('{}', (FormatAttr('pattr', None, None),)),
+    'assign':               NodeInfo('{}{} = {}\n', (IndentCurrent(), FormatChild(-1, None, None), FormatChild(0, 200, None))),
+    'STORE_NAME':           NodeInfo('{}', (FormatAttr('pattr', None, None),)),
+    'kwarg':                NodeInfo('{}={}', (FormatAttr('pattr', 0, Reformat('^\'(?P<data>.*)\'$', '\g<data>')), FormatChild(1, None, None))),
 }
 
 PRECEDENCE = {
@@ -114,11 +116,9 @@ class Walker(GenericASTTraversal):
                 #p = self.prec
                 #self.prec = arg.precedence
                 self.preorder(node[arg.child])
+                if arg.reformat is not None:
+                    self.datastack[-1] = self.__reformat(arg.reformat, self.datastack[-1])
                 #self.prec = p
-            elif isinstance(arg, FormatAttr):
-                debug("picked FormatAttr")
-                newnode = node[arg.child] if arg.child is not None else node
-                self.datastack.append(getattr(newnode, arg.attrname))
             elif isinstance(arg, FormatRange):
                 debug("picked FormatRangePrec")
                 #p = self.prec
@@ -131,8 +131,17 @@ class Walker(GenericASTTraversal):
                 else:
                     data = arg.separator.join(self.datastack[-subnodenum:])
                     del self.datastack[-subnodenum:]
+                    if arg.reformat is not None:
+                        data = self.__reformat(arg.reformat, data)
                     self.datastack.append(data)
                 #self.prec = p
+            elif isinstance(arg, FormatAttr):
+                debug("picked FormatAttr")
+                newnode = node[arg.child] if arg.child is not None else node
+                data = getattr(newnode, arg.attrname)
+                if arg.reformat is not None:
+                    data = self.__reformat(arg.reformat, data)
+                self.datastack.append(data)
             else:
                 raise UnknownParameterError(arg)
         arglen = len(info.arguments)
@@ -143,3 +152,6 @@ class Walker(GenericASTTraversal):
             del self.datastack[-arglen:]
             self.datastack.append(data)
             debug(self.datastack)
+
+    def __reformat(self, reformat, data):
+        return re.sub(reformat.match, reformat.sub, data)
