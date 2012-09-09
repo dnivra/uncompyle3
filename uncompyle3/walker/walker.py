@@ -50,6 +50,7 @@ TABLE_DIRECT = {
     'assign':               NodeInfo('{}{} = {}\n', (IndentCurrent(), FormatChild(-1), FormatChild(0, 200))),
     'STORE_NAME':           NodeInfo('{}', (FormatAttr('pattr'),)),
     'kwarg':                NodeInfo('{}={}', (FormatAttr('pattr', 0, Reformat('^\'(?P<data>.*)\'$', '\g<data>')), FormatChild(1))),
+    'compare':              NodeInfo('{} {} {}', (FormatChild(0, 19), FormatAttr('pattr', -1), FormatChild(1, 19))),
 }
 
 PRECEDENCE = {
@@ -74,6 +75,8 @@ PRECEDENCE = {
     'BINARY_XOR':           16,
 
     'BINARY_OR':            18,
+
+    'cmp':                  20,
 }
 
 

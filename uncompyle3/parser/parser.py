@@ -21,6 +21,7 @@ class Parser(GenericASTBuilder):
         call_stmt ::= expr POP_TOP
         designator ::= STORE_NAME
         kwarg ::= LOAD_CONST expr
+        compare ::= expr expr COMPARE_OP
         """
 
     def p_expr(self, args):
@@ -32,6 +33,7 @@ class Parser(GenericASTBuilder):
         expr ::= binary_subscr
         expr ::= unary_expr
         expr ::= unary_not
+        expr ::= cmp
 
         binary_expr ::= expr expr binary_op
         binary_op ::= BINARY_POWER
@@ -56,6 +58,8 @@ class Parser(GenericASTBuilder):
         unary_op ::= UNARY_INVERT
 
         unary_not ::= expr UNARY_NOT
+
+        cmp ::= compare
         """
 
     def p_assign(self, args):
