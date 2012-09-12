@@ -42,8 +42,10 @@ TABLE_DIRECT = {
     'INPLACE_OR':           NodeInfo('|=',),
     'INPLACE_XOR':          NodeInfo('^=',),
     # Logic operations
-    'and':                  NodeInfo('and',),
-    'or':                   NodeInfo('or',),
+    'JUMP_IF_TRUE_OR_POP':  NodeInfo('or',),
+    'POP_JUMP_IF_TRUE':     NodeInfo('or',),
+    'JUMP_IF_FALSE_OR_POP': NodeInfo('and',),
+    'POP_JUMP_IF_FALSE':    NodeInfo('and',),
     # Miscellanea & temporary
     'call_function':        NodeInfo('{}({})', (FormatChild(0), FormatRange(1, -1, ', ', 100))),
     'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0), FormatChild(1, 100))),
@@ -83,9 +85,11 @@ PRECEDENCE = {
 
     'unary_not':            22,
 
-    'and':                  24,
+    'JUMP_IF_FALSE_OR_POP': 24,
+    'POP_JUMP_IF_FALSE':    24,
 
-    'or':                   26,
+    'JUMP_IF_TRUE_OR_POP':  26,
+    'POP_JUMP_IF_TRUE':     26,
 }
 
 
@@ -194,28 +198,26 @@ class Walker(GenericASTTraversal):
         self.datastack.append(word_new)
         self.prune()
 
-    def format_logic(self, node):
+    def n_logic_expr(self, node):
+        # The sa,e as binary expression processing, with except for 2 things:
+        # 1) Other order of data and operators within node
+        # 2) Does not parenthize expressions on the right-hand, if they have
+        # the same precedence as logical operator
         self.preorder(node[0])
+        self.preorder(node[1])
         self.preorder(node[2])
-        p_left = self.datastack[-2].precedence
-        p_oper = PRECEDENCE.get(node.type)
+        p_left = self.datastack[-3].precedence
         p_right = self.datastack[-1].precedence
-        data_left = self.datastack[-2].data
-        data_oper = TABLE_DIRECT.get(node.type).format
+        p_oper = PRECEDENCE.get(node[1][0].type)
+        data_left = self.datastack[-3].data
         data_right = self.datastack[-1].data
+        data_oper = self.datastack[-2].data
         if p_oper is not None and p_left is not None and p_left > p_oper:
             data_left = '({})'.format(data_left)
-        # With right part we add parenthesis even in case of equal precedences -
-        # despite it has the same arithemtical meaning with or without them,
-        # python calculates parenthized part first, and we must reflect it
-        # in the source
         if p_oper is not None and p_right is not None and p_right > p_oper:
             data_right = '({})'.format(data_right)
-        # Form word and modify the stack
         data = '{} {} {}'.format(data_left, data_oper, data_right)
         word_new = StackData(data, p_oper)
-        del self.datastack[-2:]
+        del self.datastack[-3:]
         self.datastack.append(word_new)
         self.prune()
-
-    n_or = n_and = format_logic

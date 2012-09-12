@@ -18,64 +18,52 @@ class PostProcessLogic(GenericASTTraversal):
         self.preorder(ast)
 
     def n_expr(self, node):
-        if self.detect_logic_expr(node) is True:
-            self.repair_logic(node)
+        if self.contains_logic(node) is True:
+            self.smash_node(node)
+            print("LOLOGIC")
+            print(node)
+            self.layout(node)
             self.prune()
 
-    def repair_logic(self, expr_node):
-        """
-        General workflow for repairing logic trees.
-        """
-        self.smash_node(expr_node)
-        self.layout(expr_node)
+    def contains_logic(self, node):
+        if node.type == 'expr' and len(node) == 1 and node[0].type == 'logic_expr':
+            return True
+        else:
+            return False
 
     def smash_node(self, expr_node):
         """
         Transform tree with logic nodes into
         flat structure.
         """
-        # Container for flattened data
-        logic_node = expr_node[0]
+        # Will serve as container for flattened data
+        logic_expr = expr_node[0]
         # Logic node should always be composed of 3 children
-        lh_expr, _, rh_expr = logic_node
-        # Remove both expression children from logic node
-        del logic_node[0]
-        del logic_node[1]
-        # Remove logic node from expression node
-        del expr_node[0]
+        lh_expr, logic_op, rh_expr = logic_expr
+        # Clean logic node
+        del logic_expr[:]
         # If we're dealing with another logic expression,
         # we flatten it too and add to top-level logic
         # expression node
-        self.smash_child_expr(expr_node, lh_expr)
-        expr_node.append(logic_node)
-        self.smash_child_expr(expr_node, rh_expr)
+        self.smash_child_expr(logic_expr, lh_expr)
+        logic_expr.append(logic_op)
+        self.smash_child_expr(logic_expr, rh_expr)
 
-    def detect_logic_expr(self, node):
-        """
-        Given expression node, attempts to find out
-        if its top-level children are dealing with
-        logic.
-        """
-        if node.type == 'expr' and len(node) == 1 and node[0].type in ('and', 'or'):
-            return True
-        else:
-            return False
-
-    def smash_child_expr(self, parent, child):
+    def smash_child_expr(self, parent, child_expr):
         """
         If passed child is logic expression too,
         smash it, then regardless of check append
         result to parent.
         """
-        if self.detect_logic_expr(child) is True:
-            self.smash_node(child)
-            parent += child
+        if self.contains_logic(child_expr) is True:
+            self.smash_node(child_expr)
+            parent += child_expr[0]
         else:
             # We need to traverse non-logic expression
             # branches to make sure nested logical trees
             # are fixed too
-            self.preorder(child)
-            parent.append(child)
+            self.preorder(child_expr)
+            parent.append(child_expr)
 
     def get_token_map(self, node):
         """
@@ -95,33 +83,24 @@ class PostProcessLogic(GenericASTTraversal):
         Perform single step of structurizing of our
         flat list. Pick operand and 'raise' it.
         """
-        flat_len = len(expr_node)
+        logic_expr = expr_node[0]
+        flat_len = len(logic_expr)
         # If we have simple single expr subnode,
         # just move contents of child to passed node
         if flat_len == 1:
-            expr_node[:] = expr_node[0][:]
-        # If there're just 3 children, process is
-        # straight-forward - reform flat structure
-        # into logical operation tree without any
-        # additional analysis
-        elif flat_len == 3:
-            expr_lh, logic_node, expr_rh = expr_node
-            del expr_node[:]
-            expr_node.append(logic_node)
-            logic_node.insert(0, expr_lh)
-            logic_node.append(expr_rh)
+            expr_node[:] = logic_expr[:]
         # When we have 5 or more elements in the flat structure,
         # we have to perform analysis on how to structurize tree
-        else:
-            token_map = self.get_token_map(expr_node)
+        elif flat_len >= 5:
+            token_map = self.get_token_map(logic_expr)
             jumptargets = tuple(token_map.keys())
             # Assume we pick 1st logic operand for
             # division of list into tree with 2 branches
             pick_idx = 1
-            for child_idx in range(len(expr_node)):
-                child = expr_node[child_idx]
+            for child_idx in range(flat_len):
+                child = logic_expr[child_idx]
                 # Skip all non-logic nodes
-                if child.type not in ('and', 'or'):
+                if child.type != 'logic_op':
                     continue
                 # Get jump destination of logic token and check
                 # if it's within range of available jump targets.
@@ -144,22 +123,26 @@ class PostProcessLogic(GenericASTTraversal):
                 # to the left, and remaining part being left-hand expression
                 pick_idx = jumptargets.index(jump_dest) - 1
                 break
-            # Move logic node to its proper position,
+            # Move logic op node to its proper position,
             # split flat list into two parts, place both
             # into new expr nodes, and add these expr nodes
             # to logic node. Also run method on split flat
             # parts to ensure they're processed too.
-            flat_lh = expr_node[:pick_idx]
-            logic_node = expr_node[pick_idx]
-            flat_rh = expr_node[pick_idx+1:]
-            del expr_node[:]
-            expr_node.append(logic_node)
+            flat_lh = logic_expr[:pick_idx]
+            logic_op = logic_expr[pick_idx]
+            flat_rh = logic_expr[pick_idx+1:]
+            del logic_expr[:]
             expr_lh = ASTNode('expr')
-            expr_lh += flat_lh
+            logic_expr_lh = ASTNode('logic_expr')
+            expr_lh.append(logic_expr_lh)
+            logic_expr_lh += flat_lh
             self.layout(expr_lh)
-            logic_node.insert(0, expr_lh)
+            logic_expr.append(expr_lh)
+            logic_expr.append(logic_op)
             expr_rh = ASTNode('expr')
-            expr_rh += flat_rh
+            logic_expr_rh = ASTNode('logic_expr')
+            expr_rh.append(logic_expr_rh)
+            logic_expr_rh += flat_rh
             self.layout(expr_rh)
-            logic_node.append(expr_rh)
+            logic_expr.append(expr_rh)
 
