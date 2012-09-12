@@ -12,9 +12,9 @@ class Token:
     def __repr__(self):
         return str(self.type)
 
-    def __str__(self, indent=''):
-        linestart = '(linestart)' if self.linestart else ''
-        return '{}{:<3} {:>15} {} {}'.format(indent, self.offset, self.type, self.pattr, linestart)
+    def __str__(self):
+        linestart = ' (linestart)' if self.linestart else ''
+        return '{:<3} {:>15} {} {}{}'.format(self.offset, self.type, self.attr, self.pattr, linestart)
 
     def __hash__(self):
         return hash(self.type)

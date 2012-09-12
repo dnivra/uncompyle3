@@ -1,6 +1,6 @@
 from uncompyle3.utils.spark import GenericASTBuilder
-
 from .astnode import ASTNode
+from .pplogic import PostProcessLogic
 
 
 # Empty function, used as argument when adding custom rules
@@ -10,6 +10,7 @@ nop_func = lambda self, args: None
 class Parser(GenericASTBuilder):
 
     def __init__(self):
+        self.added_rules = set()
         GenericASTBuilder.__init__(self, ASTNode, "stmts")
 
     def p_grammar(self, args):
@@ -94,6 +95,13 @@ class Parser(GenericASTBuilder):
         inplace_op ::= INPLACE_OR
         """
 
+    def parse(self, tokens):
+        self.add_custom_rules(tokens)
+        ast = GenericASTBuilder.parse(self, tokens)
+        pp_logic = PostProcessLogic()
+        pp_logic.repair(ast)
+        return ast
+
     def add_custom_rules(self, tokens):
         new_rules = set()
         for token in tokens:
@@ -107,8 +115,10 @@ class Parser(GenericASTBuilder):
             kw_args_line = '' if args_kw == 0 else ' {}'.format(' '.join('kwarg' for _ in range(args_kw)))
             rule = 'call_function ::= expr{}{} CALL_FUNCTION'.format(pos_args_line, kw_args_line)
             new_rules.add(rule)
+        new_rules.difference_update(self.added_rules)
         for rule in new_rules:
             self.addRule(rule, nop_func)
+        self.added_rules.update(new_rules)
 
 
 

@@ -26,6 +26,9 @@ class ASTNode(UserList):
     def __repr__(self, indent=''):
         current = '{}{}'.format(indent, self.type)
         newindent = '  {}'.format(indent)
-        children = '\n'.join(child.__str__(indent=newindent) for child in self)
+        # Pass indent to children, if they are not other AST nodes
+        # prepend it manually
+        children = '\n'.join(child.__str__(indent=newindent) if isinstance(child, ASTNode)
+                             else '{}{}'.format(newindent, child) for child in self)
         total = '{}\n{}'.format(current, children)
         return total

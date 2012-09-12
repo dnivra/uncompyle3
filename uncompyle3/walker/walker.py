@@ -42,8 +42,8 @@ TABLE_DIRECT = {
     'INPLACE_OR':           NodeInfo('|=',),
     'INPLACE_XOR':          NodeInfo('^=',),
     # Logic operations
-    'and':                  NodeInfo('{} and {}', (FormatChild(0), FormatChild(2))),
-    'or':                   NodeInfo('{} or {}', (FormatChild(0), FormatChild(2))),
+    'and':                  NodeInfo('and',),
+    'or':                   NodeInfo('or',),
     # Miscellanea & temporary
     'call_function':        NodeInfo('{}({})', (FormatChild(0), FormatRange(1, -1, ', ', 100))),
     'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0), FormatChild(1, 100))),
@@ -193,3 +193,29 @@ class Walker(GenericASTTraversal):
         del self.datastack[-3:]
         self.datastack.append(word_new)
         self.prune()
+
+    def format_logic(self, node):
+        self.preorder(node[0])
+        self.preorder(node[2])
+        p_left = self.datastack[-2].precedence
+        p_oper = PRECEDENCE.get(node.type)
+        p_right = self.datastack[-1].precedence
+        data_left = self.datastack[-2].data
+        data_oper = TABLE_DIRECT.get(node.type).format
+        data_right = self.datastack[-1].data
+        if p_oper is not None and p_left is not None and p_left > p_oper:
+            data_left = '({})'.format(data_left)
+        # With right part we add parenthesis even in case of equal precedences -
+        # despite it has the same arithemtical meaning with or without them,
+        # python calculates parenthized part first, and we must reflect it
+        # in the source
+        if p_oper is not None and p_right is not None and p_right > p_oper:
+            data_right = '({})'.format(data_right)
+        # Form word and modify the stack
+        data = '{} {} {}'.format(data_left, data_oper, data_right)
+        word_new = StackData(data, p_oper)
+        del self.datastack[-2:]
+        self.datastack.append(word_new)
+        self.prune()
+
+    n_or = n_and = format_logic

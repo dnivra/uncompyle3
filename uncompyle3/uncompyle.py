@@ -35,7 +35,6 @@ class Uncompyle:
             del tokens[-2:]
 
         parser = Parser()
-        parser.add_custom_rules(tokens)
         ast = parser.parse(tokens)
         debug(ast)
 

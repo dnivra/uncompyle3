@@ -25,8 +25,6 @@ import re
 import sys
 import string
 
-from uncompyle3.utils.debug import debug
-
 
 def _namelist(instance):
     namelist, namedict, classlist = [], {}, [instance.__class__]
@@ -752,9 +750,6 @@ class GenericASTTraversal:
 
         try:
             name = 'n_' + self.typestring(node)
-            debug("-----")
-            debug("spark.preorder()")
-            debug("tree node:", self.typestring(node))
             if hasattr(self, name):
                 func = getattr(self, name)
                 func(node)
