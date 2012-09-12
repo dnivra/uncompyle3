@@ -20,8 +20,6 @@ class PostProcessLogic(GenericASTTraversal):
     def n_expr(self, node):
         if self.contains_logic(node) is True:
             self.smash_node(node)
-            print("LOLOGIC")
-            print(node)
             self.layout(node)
             self.prune()
 
