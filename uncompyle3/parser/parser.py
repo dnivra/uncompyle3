@@ -1,6 +1,5 @@
 from uncompyle3.utils.spark import GenericASTBuilder
 from .astnode import ASTNode
-from .pplogic import PostProcessLogic
 
 
 # Empty function, used as argument when adding custom rules
@@ -35,7 +34,8 @@ class Parser(GenericASTBuilder):
         expr ::= unary_expr
         expr ::= unary_not
         expr ::= cmp
-        expr ::= logic_expr
+        expr ::= and
+        expr ::= or
 
         binary_expr ::= expr expr binary_op
         binary_op ::= BINARY_POWER
@@ -63,11 +63,10 @@ class Parser(GenericASTBuilder):
 
         cmp ::= compare
 
-        logic_expr ::= expr logic_op expr
-        logic_op ::= JUMP_IF_TRUE_OR_POP
-        logic_op ::= POP_JUMP_IF_TRUE
-        logic_op ::= JUMP_IF_FALSE_OR_POP
-        logic_op ::= POP_JUMP_IF_FALSE
+        and ::= expr JUMP_IF_FALSE_OR_POP expr
+        and ::= expr POP_JUMP_IF_FALSE expr
+        or ::= expr JUMP_IF_TRUE_OR_POP expr
+        or ::= expr POP_JUMP_IF_TRUE expr
         """
 
     def p_assign(self, args):
@@ -98,8 +97,6 @@ class Parser(GenericASTBuilder):
     def parse(self, tokens):
         self.add_custom_rules(tokens)
         ast = GenericASTBuilder.parse(self, tokens)
-        pp_logic = PostProcessLogic()
-        pp_logic.repair(ast)
         return ast
 
     def add_custom_rules(self, tokens):
