@@ -1,7 +1,6 @@
 from .scanner.scanner import Scanner
 from .scanner.token import Token
 from .parser.parser import Parser
-from .version.magic import magics
 from .walker.walker import Walker
 from .utils.debug import debug
 
@@ -13,11 +12,9 @@ class Uncompyle:
 
     def run(self, file_bytes):
         ### File format check stage ###
-        magic = file_bytes[:4]
+        #magic = file_bytes[:4]
         #timestamp = file_bytes[4:8]
         bytecode = file_bytes[8:]
-        # Temporary sanity check
-        assert magics.get(magic) == '3.2'
 
         ### Scanner stage ###
         scanner = Scanner()

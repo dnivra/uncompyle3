@@ -1,6 +1,6 @@
 import marshal
-from uncompyle3.version.cpython32.dis import tokenize
 
+from .dis import tokenize
 from .token import Token
 
 
