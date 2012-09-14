@@ -18,7 +18,7 @@ class Uncompyle:
 
         ### Scanner stage ###
         scanner = Scanner()
-        tokens = scanner.tokenize(bytecode)
+        tokens = scanner.run(bytecode)
         debug('---Tokens debug output---\n#: offset linestart type attr pattr')
         k = 1
         for i in tokens:
