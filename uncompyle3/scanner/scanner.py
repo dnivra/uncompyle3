@@ -8,29 +8,30 @@ class Scanner:
 
     def run(self, bytecode):
         code_object = marshal.loads(bytecode)
-        tokens = self.tokenize(code_object, Token)
+        tokens = self.tokenize(code_object)
         return tokens
 
-    def tokenize(self, co, token_cls):
-        """Convert code object into a sequence of tokens."""
+    def tokenize(self, co):
+        """
+        Convert code object into a sequence of tokens.
+
+        Based on dis.disassemble() function.
+        """
         tokens = []
-        code = co.co_code
+        self.code = code = co.co_code
         linestarts = dict(dis.findlinestarts(co))
         n = len(code)
-        i = 0
         extended_arg = 0
         free = None
-        while i < n:
-            op = code[i]
-            current_token = token_cls()
+        for offset in self.op_range(0, n):
+            op = code[offset]
+            current_token = Token()
             current_token.type = dis.opname[op]
-            current_token.offset = i
-            current_token.linestart = True if i in linestarts else False
-            i = i+1
+            current_token.offset = offset
+            current_token.linestart = True if offset in linestarts else False
             if op >= dis.HAVE_ARGUMENT:
-                oparg = code[i] + code[i+1]*256 + extended_arg
+                oparg = code[offset+1] + code[offset+2]*256 + extended_arg
                 extended_arg = 0
-                i = i+2
                 if op == dis.EXTENDED_ARG:
                     extended_arg = oparg*65536
 
@@ -40,7 +41,7 @@ class Scanner:
                 elif op in dis.hasname:
                     current_token.pattr = co.co_names[oparg]
                 elif op in dis.hasjrel:
-                    current_token.pattr = repr(i + oparg)
+                    current_token.pattr = repr(offset + 3 + oparg)
                 elif op in dis.haslocal:
                     current_token.pattr = co.co_varnames[oparg]
                 elif op in dis.hascompare:
@@ -51,3 +52,22 @@ class Scanner:
                     current_token.pattr = free[oparg]
             tokens.append(current_token)
         return tokens
+
+    def op_size(self, op):
+        """
+        Return size of operator with its arguments
+        for given opcode.
+        """
+        if op < dis.HAVE_ARGUMENT:
+            return 1
+        else:
+            return 3
+
+    def op_range(self, start, end):
+        """
+        Iterate through positions of opcodes, skipping
+        arguments.
+        """
+        while start < end:
+            yield start
+            start += self.op_size(self.code[start])
