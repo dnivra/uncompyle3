@@ -1,6 +1,6 @@
 class Token:
 
-    def __init__(self, type_=None, attr=None, pattr=None, offset=None, linestart=None):
+    def __init__(self, type_=None, attr=None, pattr=None, offset=None, linestart=False):
         # TODO: consider using intern()
         self.type = type_
         self.attr = attr
