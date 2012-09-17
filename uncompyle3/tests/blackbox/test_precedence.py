@@ -8,8 +8,8 @@ class TestPrecedence(BlackBoxTestCase):
         # are the same, but expression structure differs from
         # 'flat' and it was structurized other way due to
         # parenthesis in source code
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/precedence/structure.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/precedence/structure.py"
+        infile = "precedence/structure.cpython-32.pyc"
+        expected = "precedence/structure.py"
         self.assertProgramOutput(infile, expected)
 
     def test_left(self):
@@ -17,8 +17,8 @@ class TestPrecedence(BlackBoxTestCase):
         # are the same, but expression structure differs from
         # 'flat' and it was structurized other way due to
         # parenthesis in source code
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/precedence/left.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/precedence/left.py"
+        infile = "precedence/left.cpython-32.pyc"
+        expected = "precedence/left.py"
         self.assertProgramOutput(infile, expected)
 
     def test_right(self):
@@ -26,6 +26,6 @@ class TestPrecedence(BlackBoxTestCase):
         # are the same, but expression structure differs from
         # 'flat' and it was structurized other way due to
         # parenthesis in source code
-        infile = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/precedence/right.cpython-32.pyc"
-        expected = "/home/dfx/src/uncompyle3/uncompyle3/tests/blackbox/res/precedence/right.py"
+        infile = "precedence/right.cpython-32.pyc"
+        expected = "precedence/right.py"
         self.assertProgramOutput(infile, expected)
