@@ -2,8 +2,11 @@ import re
 
 from uncompyle3.utils.spark import GenericASTTraversal
 from uncompyle3.utils.debug import debug
-from .containers import NodeInfo, FormatChild, FormatRange, FormatAttr, IndentCurrent, Reformat, StackData
+from .containers import NodeInfo, FormatChild, FormatRange, FormatAttr, IndentCurrent, IndentIncrease, IndentDecrease, Reformat, StackData
 from .exception import UnknownParameterError
+
+
+INDENT_STEP = ' ' * 4
 
 
 TABLE_DIRECT = {
@@ -44,6 +47,9 @@ TABLE_DIRECT = {
     # Logic operations
     'and':                  NodeInfo('and',),
     'or':                   NodeInfo('or',),
+    # Conditional branching
+    'ifstmt':               NodeInfo('{}if {}:\n{}{}{}', (IndentCurrent(), FormatChild(0), IndentIncrease(), FormatChild(1), IndentDecrease())),
+    'ifelsestmt':           NodeInfo('{}if {}:\n{}{}{}{}else:\n{}{}{}', (IndentCurrent(), FormatChild(0), IndentIncrease(), FormatChild(1), IndentDecrease(), IndentCurrent(), IndentIncrease(), FormatChild(3), IndentDecrease())),
     # Miscellanea & temporary
     'call_function':        NodeInfo('{}({})', (FormatChild(0), FormatRange(1, -1, ', ', 100))),
     'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0), FormatChild(1, 100))),
@@ -117,6 +123,15 @@ class Walker(GenericASTTraversal):
             if isinstance(arg, IndentCurrent):
                 debug("picked IndentCurrent")
                 word = StackData(self.indent)
+                self.datastack.append(word)
+            elif isinstance(arg, IndentIncrease):
+                debug("picked IndentIncrease")
+                self.indent += INDENT_STEP
+                word = StackData('')
+                self.datastack.append(word)
+            elif isinstance(arg, IndentDecrease):
+                self.indent = self.indent[:-4]
+                word = StackData('')
                 self.datastack.append(word)
             elif isinstance(arg, FormatChild):
                 debug("picked FormatChild")

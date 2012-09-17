@@ -11,6 +11,8 @@ class NodeInfo(namedtuple('NodeInfo', ('format', 'arguments'))):
 
 # Get current indentation level
 IndentCurrent = namedtuple('IndentCurrent', ())
+IndentIncrease = namedtuple('IndentIncrease', ())
+IndentDecrease = namedtuple('IndentDecrease', ())
 
 
 # Get return value of child's formatters, optionally

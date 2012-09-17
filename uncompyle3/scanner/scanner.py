@@ -159,7 +159,7 @@ class Scanner:
         #self.loops = []
         # Map fixed jumps to their real destination
         self.fixed_jumps = {}
-        #self.ignore_if = set()
+        self.ignore_if = set()
         self.build_statement_indices()
         # Containers filled by detect_structure()
         self.not_continue = set()

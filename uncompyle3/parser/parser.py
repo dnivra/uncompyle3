@@ -17,11 +17,35 @@ class Parser(GenericASTBuilder):
         stmts ::= stmts sstmt
         stmts ::= sstmt
         sstmt ::= stmt
+
         stmt ::= call_stmt
         call_stmt ::= expr POP_TOP
-        designator ::= STORE_NAME
         kwarg ::= LOAD_CONST expr
+
+        designator ::= STORE_NAME
+
         compare ::= expr expr COMPARE_OP
+
+        stmt ::= ifstmt
+        stmt ::= ifelsestmt
+        ifstmt ::= testexpr _ifstmts_jump
+        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+
+        testexpr ::= testfalse
+        testexpr ::= testtrue
+        testfalse ::= expr jmp_false
+        testtrue ::= expr jmp_true
+        jmp_false ::= POP_JUMP_IF_FALSE
+        jmp_true ::= POP_JUMP_IF_TRUE
+
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        c_stmts_opt ::= c_stmts
+        c_stmts ::= _stmts
+        _stmts ::= _stmts stmt
+        _stmts ::= stmt
+
+        else_suite ::= suite_stmts
+        suite_stmts ::= _stmts
         """
 
     def p_expr(self, args):
@@ -93,11 +117,6 @@ class Parser(GenericASTBuilder):
         inplace_op ::= INPLACE_XOR
         inplace_op ::= INPLACE_OR
         """
-
-    def parse(self, tokens):
-        self.add_custom_rules(tokens)
-        ast = GenericASTBuilder.parse(self, tokens)
-        return ast
 
     def add_custom_rules(self, tokens):
         new_rules = set()
