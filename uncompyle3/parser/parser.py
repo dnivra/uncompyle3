@@ -51,6 +51,11 @@ class Parser(GenericASTBuilder):
         whilestmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_ABSOLUTE POP_BLOCK COME_FROM
         l_stmts_opt ::= l_stmts
         l_stmts ::= _stmts
+
+        stmt ::= forstmt
+        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK COME_FROM
+        _for ::= GET_ITER FOR_ITER
+        for_block ::= l_stmts_opt JUMP_ABSOLUTE
         """
 
     def p_expr(self, args):
