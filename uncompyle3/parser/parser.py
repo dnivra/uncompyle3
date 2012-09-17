@@ -46,6 +46,11 @@ class Parser(GenericASTBuilder):
 
         else_suite ::= suite_stmts
         suite_stmts ::= _stmts
+
+        stmt ::= whilestmt
+        whilestmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_ABSOLUTE POP_BLOCK COME_FROM
+        l_stmts_opt ::= l_stmts
+        l_stmts ::= _stmts
         """
 
     def p_expr(self, args):

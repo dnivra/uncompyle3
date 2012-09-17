@@ -47,9 +47,10 @@ TABLE_DIRECT = {
     # Logic operations
     'and':                  NodeInfo('and',),
     'or':                   NodeInfo('or',),
-    # Conditional branching
+    # Conditional branching & looping
     'ifstmt':               NodeInfo('{}if {}:\n{}{}{}', (IndentCurrent(), FormatChild(0), IndentIncrease(), FormatChild(1), IndentDecrease())),
     'ifelsestmt':           NodeInfo('{}if {}:\n{}{}{}{}else:\n{}{}{}', (IndentCurrent(), FormatChild(0), IndentIncrease(), FormatChild(1), IndentDecrease(), IndentCurrent(), IndentIncrease(), FormatChild(3), IndentDecrease())),
+    'whilestmt':            NodeInfo('{}while {}:\n{}{}{}\n', (IndentCurrent(), FormatChild(1), IndentIncrease(), FormatChild(2), IndentDecrease())),
     # Miscellanea & temporary
     'call_function':        NodeInfo('{}({})', (FormatChild(0), FormatRange(1, -1, ', ', 100))),
     'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0), FormatChild(1, 100))),
