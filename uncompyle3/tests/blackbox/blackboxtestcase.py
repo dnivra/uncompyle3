@@ -1,4 +1,3 @@
-import inspect
 import os
 import re
 from unittest import TestCase
@@ -6,8 +5,7 @@ from unittest import TestCase
 from uncompyle3.uncompyle import Uncompyle
 
 
-current_path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-res_path = os.path.join(current_path, 'res')
+res_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'res')
 
 
 class BlackBoxTestCase(TestCase):
