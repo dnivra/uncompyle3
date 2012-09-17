@@ -118,6 +118,11 @@ class Parser(GenericASTBuilder):
         inplace_op ::= INPLACE_OR
         """
 
+    def parse(self, tokens):
+        self.add_custom_rules(tokens)
+        ast = GenericASTBuilder.parse(self, tokens)
+        return ast
+
     def add_custom_rules(self, tokens):
         new_rules = set()
         for token in tokens:
