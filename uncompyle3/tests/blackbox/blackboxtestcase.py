@@ -15,7 +15,6 @@ class BlackBoxTestCase(TestCase):
     """
 
     def assertProgramOutput(self, in_path, expected_path):
-        # TODO: add proper path detection
         infile = open(os.path.join(res_path, in_path), "rb")
         bytecode = infile.read()
         infile.close()

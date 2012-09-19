@@ -14,9 +14,8 @@ class Parser(GenericASTBuilder):
 
     def p_grammar(self, args):
         """
-        stmts ::= stmts sstmt
-        stmts ::= sstmt
-        sstmt ::= stmt
+        stmts ::= stmts stmt
+        stmts ::= stmt
 
         stmt ::= call_stmt
         call_stmt ::= expr POP_TOP
@@ -28,34 +27,23 @@ class Parser(GenericASTBuilder):
 
         stmt ::= ifstmt
         stmt ::= ifelsestmt
-        ifstmt ::= testexpr _ifstmts_jump
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifstmt ::= testexpr stmts JUMP_FORWARD COME_FROM
+        ifelsestmt ::= testexpr stmts JUMP_FORWARD stmts COME_FROM
 
         testexpr ::= testfalse
         testexpr ::= testtrue
-        testfalse ::= expr jmp_false
-        testtrue ::= expr jmp_true
-        jmp_false ::= POP_JUMP_IF_FALSE
-        jmp_true ::= POP_JUMP_IF_TRUE
+        testfalse ::= expr POP_JUMP_IF_FALSE
+        testtrue ::= expr POP_JUMP_IF_TRUE
 
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
-        c_stmts_opt ::= c_stmts
-        c_stmts ::= _stmts
-        _stmts ::= _stmts stmt
-        _stmts ::= stmt
 
         else_suite ::= suite_stmts
         suite_stmts ::= _stmts
 
         stmt ::= whilestmt
-        whilestmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_ABSOLUTE POP_BLOCK COME_FROM
-        l_stmts_opt ::= l_stmts
-        l_stmts ::= _stmts
+        whilestmt ::= SETUP_LOOP testexpr stmts JUMP_ABSOLUTE POP_BLOCK COME_FROM
 
         stmt ::= forstmt
-        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK COME_FROM
-        _for ::= GET_ITER FOR_ITER
-        for_block ::= l_stmts_opt JUMP_ABSOLUTE
+        forstmt ::= SETUP_LOOP expr GET_ITER FOR_ITER designator stmts JUMP_ABSOLUTE POP_BLOCK COME_FROM
         """
 
     def p_expr(self, args):
