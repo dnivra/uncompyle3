@@ -8,7 +8,9 @@ from .utils.debug import debug
 class Uncompyle:
 
     def __init__(self):
-        pass
+        self._scanner = Scanner()
+        self._parser = Parser()
+        self._walker = Walker()
 
     def run(self, file_bytes):
         ### File format check stage ###
@@ -17,8 +19,7 @@ class Uncompyle:
         bytecode = file_bytes[8:]
 
         ### Scanner stage ###
-        scanner = Scanner()
-        tokens = scanner.run(bytecode)
+        tokens = self._scanner.run(bytecode)
         debug('---Tokens debug output---\n#: offset linestart type attr pattr')
         k = 1
         for i in tokens:
@@ -31,11 +32,9 @@ class Uncompyle:
         if len(tokens) > 2 and tokens[-1] == Token(type_='RETURN_VALUE') and tokens[-2] == Token(type_='LOAD_CONST'):
             del tokens[-2:]
 
-        parser = Parser()
-        ast = parser.parse(tokens)
+        ast = self._parser.parse(tokens)
         debug(ast)
 
         ### Walker stage ###
         debug('\n\n---Walker stage debug---')
-        walker = Walker()
-        return walker.gen_source(ast)
+        return self._walker.gen_source(ast)

@@ -17,6 +17,4 @@ if __name__ == "__main__":
     file.close()
 
     uncompyle = Uncompyle()
-
-
     print(uncompyle.run(file_bytes))
