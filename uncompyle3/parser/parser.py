@@ -134,14 +134,9 @@ class Parser(GenericASTBuilder):
             kw_args_line = '' if args_kw == 0 else ' {}'.format(' '.join('kwarg' for _ in range(args_kw)))
             rule = 'call_function ::= expr{}{} CALL_FUNCTION'.format(pos_args_line, kw_args_line)
             new_rules.add(rule)
+        # Make sure we do not add the same rule twice, even
+        # during different sessions
         new_rules.difference_update(self.added_rules)
         for rule in new_rules:
             self.addRule(rule, nop_func)
         self.added_rules.update(new_rules)
-
-
-
-#    def p_custom(self, args):
-#        """
-#        call_function ::= expr CALL_FUNCTION
-#        """

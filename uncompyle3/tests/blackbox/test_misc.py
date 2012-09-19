@@ -27,3 +27,13 @@ class TestMisc(BlackBoxTestCase):
         infile = "misc/assign_none_str.cpython-32.pyc"
         expected = "misc/assign_none_str.py"
         self.assertProgramOutput(infile, expected)
+
+    def test_complex_script1(self):
+        infile = "misc/complex_script1.cpython-32.pyc"
+        expected = "misc/complex_script1.py"
+        self.assertProgramOutput(infile, expected)
+
+    def test_complex_script2(self):
+        infile = "misc/complex_script2.cpython-32.pyc"
+        expected = "misc/complex_script2.py"
+        self.assertProgramOutput(infile, expected)
