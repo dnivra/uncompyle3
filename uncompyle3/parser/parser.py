@@ -44,6 +44,9 @@ class Parser(GenericASTBuilder):
 
         stmt ::= forstmt
         forstmt ::= SETUP_LOOP expr GET_ITER FOR_ITER designator stmts JUMP_ABSOLUTE POP_BLOCK COME_FROM
+
+        stmt ::= importstmt
+        importstmt ::= LOAD_CONST LOAD_CONST IMPORT_NAME designator
         """
 
     def p_expr(self, args):

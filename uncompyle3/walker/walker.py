@@ -52,6 +52,8 @@ TABLE_DIRECT = {
     'ifelsestmt':           NodeInfo('{}if {}:\n{}{}{}{}else:\n{}{}{}', (IndentCurrent(), FormatChild(0), IndentIncrease(), FormatChild(1), IndentDecrease(), IndentCurrent(), IndentIncrease(), FormatChild(3), IndentDecrease())),
     'whilestmt':            NodeInfo('{}while {}:\n{}{}{}\n', (IndentCurrent(), FormatChild(1), IndentIncrease(), FormatChild(2), IndentDecrease())),
     'forstmt':              NodeInfo('{}for {} in {}:\n{}{}{}\n', (IndentCurrent(), FormatChild(4), FormatChild(1), IndentIncrease(), FormatChild(5), IndentDecrease())),
+    # Import statements
+    'importstmt':           NodeInfo('import {}', (FormatChild(3),)),
     # Miscellanea & temporary
     'call_function':        NodeInfo('{}({})', (FormatChild(0), FormatRange(1, -1, ', ', 100))),
     'binary_subscr':        NodeInfo('{}[{}]', (FormatChild(0), FormatChild(1, 100))),
@@ -101,10 +103,10 @@ class Walker(GenericASTTraversal):
 
     def __init__(self):
         self.indent = ''
-        self.datastack = []
         GenericASTTraversal.__init__(self, ast=None)
 
     def gen_source(self, ast):
+        self.datastack = []
         self.preorder(ast)
         return ''.join(item.data for item in self.datastack)
 
