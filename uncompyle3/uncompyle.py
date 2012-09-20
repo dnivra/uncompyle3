@@ -27,7 +27,6 @@ class Uncompyle:
             k+=1
 
         ### Parser stage ###
-        # This is some kind of hack(?) taken from uncompyle 2 walker code
         debug('\n\n---Parser stage debug---')
         if len(tokens) > 2 and tokens[-1] == Token(type_='RETURN_VALUE') and tokens[-2] == Token(type_='LOAD_CONST'):
             del tokens[-2:]
