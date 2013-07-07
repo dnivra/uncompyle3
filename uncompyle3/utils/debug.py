@@ -17,4 +17,3 @@ def debug(*data):
     f = open(get_log_path(), 'a')
     f.write(line)
     f.close()
-    #print(line)
