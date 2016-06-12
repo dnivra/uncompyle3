@@ -14,9 +14,10 @@ class Uncompyle:
 
     def run(self, file_bytes):
         ### File format check stage ###
-        #magic = file_bytes[:4]
-        #timestamp = file_bytes[4:8]
-        bytecode = file_bytes[8:]
+        # python version magic = file_bytes[:4]
+        # source file timestamp = file_bytes[4:8]
+        # source file size = file_bytes[8:12]
+        bytecode = file_bytes[12:]
 
         ### Scanner stage ###
         tokens = self._scanner.run(bytecode)
