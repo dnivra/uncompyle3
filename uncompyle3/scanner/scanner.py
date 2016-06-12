@@ -83,12 +83,16 @@ class Scanner:
         """
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
+        # Format: [(offset, line started), ...]
         linestarts = list(dis.findlinestarts(code_obj))
+        # Format: {offset: line started}
         self.linestarts = dict(linestarts)
         # Plain set with offsets of first ops on line
+        # Format: set(offset, ...)
         self.linestart_offsets = {a for (a, _) in linestarts}
         # 'List-map' which shows line number of current op and offset of
         # first op on following line, given offset of op as index
+        # Format (for each token offset): [(current line, next line begins offset)]
         self.lines = lines = []
         LineTuple = namedtuple('LineTuple', ['l_no', 'next'])
         # Iterate through available linestarts, and fill
@@ -115,6 +119,7 @@ class Scanner:
         """
         code = self.code
         codelen = len(code)
+        # Format: (for each offset) [previous token offset, ...]
         self.prev_op = [0]
         for offset in self.op_range(0, codelen):
             op = code[offset]
@@ -321,42 +326,6 @@ class Scanner:
                     elif t == target:
                         result.append(offset)
         return result
-
-    def first_instr(self, start, end, instr, target=None, exact=True):
-        """
-        Find the first <instr> in the block from start to end.
-        <instr> is any python bytecode instruction or a list of opcodes
-        If <instr> is an opcode with a target (like a jump), a target
-        destination can be specified which must match precisely if exact
-        is True, or if exact is False, the instruction which has a target
-        closest to <target> will be returned.
-
-        Return index to it or None if not found.
-        """
-        code = self.code
-        assert(start >= 0 and end <= len(code))
-
-        try:
-            None in instr
-        except:
-            instr = [instr]
-
-        result_offset = None
-        current_distance = len(code)
-        for offset in self.op_range(start, end):
-            op = code[offset]
-            if op in instr:
-                if target is None:
-                    return offset
-                dest = self.get_target(offset)
-                if dest == target:
-                    return offset
-                elif not exact:
-                    new_distance = abs(target - dest)
-                    if new_distance < current_distance:
-                        current_distance = new_distance
-                        result_offset = offset
-        return result_offset
 
     def last_instr(self, start, end, instr, target=None, exact=True):
         """
