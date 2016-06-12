@@ -8,7 +8,7 @@ class TestPrecedence(BlackBoxTestCase):
         # are the same, but expression structure differs from
         # 'flat' and it was structurized other way due to
         # parenthesis in source code
-        infile = "precedence/structure.cpython-32.pyc"
+        infile = "precedence/structure.cpython-35.pyc"
         expected = "precedence/structure.py"
         self.assertProgramOutput(infile, expected)
 
@@ -17,7 +17,7 @@ class TestPrecedence(BlackBoxTestCase):
         # are the same, but expression structure differs from
         # 'flat' and it was structurized other way due to
         # parenthesis in source code
-        infile = "precedence/left.cpython-32.pyc"
+        infile = "precedence/left.cpython-35.pyc"
         expected = "precedence/left.py"
         self.assertProgramOutput(infile, expected)
 
@@ -26,6 +26,6 @@ class TestPrecedence(BlackBoxTestCase):
         # are the same, but expression structure differs from
         # 'flat' and it was structurized other way due to
         # parenthesis in source code
-        infile = "precedence/right.cpython-32.pyc"
+        infile = "precedence/right.cpython-35.pyc"
         expected = "precedence/right.py"
         self.assertProgramOutput(infile, expected)
