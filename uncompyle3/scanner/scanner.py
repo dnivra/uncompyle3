@@ -28,6 +28,7 @@ class Scanner:
         codelen = len(code)
         self.build_lines_data(co)
         self.build_prev_op()
+        self.find_new_ifs()
         # Get jump targets
         # Format: {target offset: [jump offset, ...]}
         jump_targets = self.find_jump_targets()
@@ -36,6 +37,19 @@ class Scanner:
         extended_arg = 0
         free = None
         for offset in self.op_range(0, codelen):
+            # Process new ifs
+            if offset in self.new_ifs.values():
+                # Create fake tonken, which is needed by parser
+                token = Token()
+                token.type = dis.opname[JUMP_FORWARD]
+                token.offset = '{}_fake'.format(offset)
+                token.linestart = False
+                token.attr = 0
+                token.pattr = repr(offset)
+                tokens.append(token)
+                # Add info to jump targets as well
+                jumps = jump_targets.setdefault(offset, [])
+                jumps.append(offset)
             # Add jump target tokens
             if offset in jump_targets:
                 jump_idx = 0
@@ -144,6 +158,41 @@ class Scanner:
         while start < end:
             yield start
             start += self.op_size(self.code[start])
+
+    def find_new_ifs(self):
+        # Format: {jump op offset: jump target}
+        self.new_ifs = {}
+        code = self.code
+        for offset in self.op_range(0, len(code)):
+            op = code[offset]
+            if op in (POP_JUMP_IF_FALSE, POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE, POP_JUMP_IF_TRUE):
+                target = self.get_target(offset)
+                src_line = self.lines[offset][0]
+                tgt_line = self.lines[target][0]
+                # Means and/or logic
+                if src_line == tgt_line:
+                    continue
+                stop = False
+                for inner_offset in self.op_range(offset, target):
+                    inner_op = code[inner_offset]
+                    # If-else constructs contain jump forward in-between,
+                    # and it also jumps across the lines
+                    if inner_op == JUMP_FORWARD:
+                        inner_target = self.get_target(inner_offset)
+                        inner_src_line = self.lines[inner_offset][0]
+                        inner_tgt_line = self.lines[inner_target][0]
+                        if inner_tgt_line != inner_src_line:
+                            stop = True
+                            break
+                    # While constructs jump back at the end of the cycle
+                    elif inner_op == JUMP_ABSOLUTE:
+                        inner_target = self.get_target(inner_offset)
+                        if inner_target < offset:
+                            stop = True
+                            break
+                if stop:
+                    continue
+                self.new_ifs[offset] = target
 
     def find_jump_targets(self):
         """
