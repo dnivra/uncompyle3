@@ -29,7 +29,7 @@ class Scanner:
         self.build_lines_data(co)
         self.build_prev_op()
         # Get jump targets
-        # Format: {target offset: [jump offsets]}
+        # Format: {target offset: [jump offset, ...]}
         jump_targets = self.find_jump_targets()
         # Initialize extended arg at 0. When extended arg op is encountered,
         # variable preserved for next cycle and added as arg for next op
@@ -149,10 +149,7 @@ class Scanner:
         """
         Detect all offsets in a byte code which are jump targets.
 
-        Return the list of offsets.
-
-        This procedure is modelled after dis.findlables(), but here
-        for each target the number of jumps is counted.
+        Return the map between targets and sources.
         """
         code = self.code
         codelen = len(code)
@@ -160,11 +157,8 @@ class Scanner:
                          'start': 0,
                          'end':   codelen-1}]
 
-        # All loop entry points
-        #self.loops = []
         # Map fixed jumps to their real destination
         self.fixed_jumps = {}
-        self.ignore_if = set()
         self.build_statement_indices()
         # Containers filled by detect_structure()
         self.not_continue = set()
@@ -174,7 +168,7 @@ class Scanner:
         for offset in self.op_range(0, codelen):
             op = code[offset]
 
-            # Determine structures and fix jumps for 2.3+
+            # Determine structures and fix jumps
             self.detect_structure(offset)
 
             if op >= dis.HAVE_ARGUMENT:
@@ -199,7 +193,7 @@ class Scanner:
 
     def build_statement_indices(self):
         code = self.code
-        start = 0;
+        start = 0
         end = codelen = len(code)
 
         statement_opcodes = {
@@ -220,16 +214,20 @@ class Scanner:
             STORE_SUBSCR, UNPACK_SEQUENCE, JUMP_ABSOLUTE
         }
 
-        # Compose preliminary list of indices with statements,
-        # using plain statement opcodes
+        # "Simple" and "compound" statements
+        # Format: [offset, ...]
         prelim = self.all_instr(start, end, statement_opcodes)
 
         # Initialize final container with statements with
-        # preliminnary data
+        # preliminnary data. Contains offsets of stmt opcodes
+        # and stmt opcode sequences
         stmts = self.stmts = set(prelim)
-
-        # Same for opcode sequences
+        # "Compound" statements
+        # Format: [offset, ...]
         pass_stmts = set()
+
+
+        # Find stmt opcode sequences
         for sequence in statement_opcode_sequences:
             for i in self.op_range(start, end-(len(sequence)+1)):
                 match = True
@@ -245,14 +243,17 @@ class Scanner:
                     pass_stmts.add(i)
 
         # Initialize statement list with the full data we've gathered so far
+        # For now it's copy of stmts - both simple and compound statement offsets
+        # are written in here
         if pass_stmts:
             stmt_offset_list = list(stmts)
             stmt_offset_list.sort()
         else:
             stmt_offset_list = prelim
+
         # 'List-map' which contains offset of start of
         # next statement, when op offset is passed as index
-        self.next_stmt = slist = []
+        self.next_stmt = []
         last_stmt_offset = -1
         i = 0
         # Go through all statement offsets
@@ -266,7 +267,7 @@ class Scanner:
                 if target > stmt_offset or self.lines[last_stmt_offset].l_no == self.lines[stmt_offset].l_no:
                     stmts.remove(stmt_offset)
                     continue
-                # Rewing ops till we encounter non-JA one
+                # Rewind ops till we encounter non-JA one
                 j = self.prev_op[stmt_offset]
                 while code[j] == JUMP_ABSOLUTE:
                     j = self.prev_op[j]
@@ -289,11 +290,11 @@ class Scanner:
                     continue
             # Add to list another list with offset of current statement,
             # equal to length of previous statement
-            slist += [stmt_offset] * (stmt_offset-i)
+            self.next_stmt += [stmt_offset] * (stmt_offset-i)
             last_stmt_offset = stmt_offset
             i = stmt_offset
         # Finish filling the list for last statement
-        slist += [codelen] * (codelen-len(slist))
+        self.next_stmt += [codelen] * (codelen-len(self.next_stmt))
 
 
     def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
@@ -382,7 +383,6 @@ class Scanner:
     def detect_structure(self, offset):
         """
         Detect structures and their boundaries to fix optimizied jumps
-        in python2.3+
         """
         code = self.code
         op = code[offset]
@@ -473,10 +473,6 @@ class Scanner:
                       self.get_target(target) == self.get_target(next)):
                     self.fixed_jumps[offset] = prev_op[next]
                     return
-
-            # Don't add a struct for a while test, it's already taken care of
-            if offset in self.ignore_if:
-                return
 
             if (code[prev_op[rtarget]] == JUMP_ABSOLUTE and prev_op[rtarget] in self.stmts and
                 prev_op[rtarget] != offset and prev_op[prev_op[rtarget]] != offset and
